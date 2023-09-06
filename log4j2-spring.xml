@@ -2,12 +2,15 @@
 <Configuration status="info" monitorInterval="30">
 <!--   
   implementation 'org.springframework.boot:spring-boot-starter-log4j2'
-        implementation 'com.lmax:disruptor:3.4.4'
+  implementation 'com.lmax:disruptor:3.4.4'
   modules {
-            module("org.springframework.boot:spring-boot-starter-logging") {
-                replacedBy("org.springframework.boot:spring-boot-starter-log4j2", "Use Log4j2 instead of Logback")
-            }
-        }
+      module("org.springframework.boot:spring-boot-starter-logging") {
+          replacedBy("org.springframework.boot:spring-boot-starter-log4j2", "Use Log4j2 instead of Logback")
+      }
+  }
+
+  logging:
+    config: classpath:log4j2-spring-@activeProfile@.xml
   -->
     <Properties>
         <Property name="LOG_PATH">${spring:logging.file.path}</Property>
