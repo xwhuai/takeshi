@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" monitorInterval="30">
+<!--   
+  implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+        implementation 'com.lmax:disruptor:3.4.4'
+  modules {
+            module("org.springframework.boot:spring-boot-starter-logging") {
+                replacedBy("org.springframework.boot:spring-boot-starter-log4j2", "Use Log4j2 instead of Logback")
+            }
+        }
+  -->
+    <Properties>
+        <Property name="LOG_PATH">${spring:logging.file.path}</Property>
+        <Property name="MAX_FILE_SIZE">30MB</Property>
+        <Property name="MAX_HISTORY">30d</Property>
+        <Property name="CONSOLE_LOG_PATTERN"
+                  value="%style{%d{yyyy-MM-dd HH:mm:ss.SSS}}{#009688} [%style{%X{traceId}}{#1976D2}] %highlight{%-5level} [%style{%thread}{blue}] %style{%logger}{#009688}:%style{%line}{magenta} %msg%n%throwable"/>
+        <Property name="FILE_LOG_PATTERN"
+                  value="[${spring:spring.application.name}] %d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId}] %-5level [%thread] %logger:%line %msg%n"/>
+    </Properties>
+    <Appenders>
+        <console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="${CONSOLE_LOG_PATTERN}" charset="UTF-8"/>
+        </console>
+
+        <RollingRandomAccessFile name="DEBUG_FILE" immediateFlush="false" fileName="${LOG_PATH}/debug.log"
+                                 filePattern="${LOG_PATH}/debug-%d{yyyy-MM-dd}.%i.log.gz">
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${FILE_LOG_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax">
+                <Delete basePath="${LOG_PATH}" maxDepth="1">
+                    <IfFilename glob="*">
+                        <IfAny>
+                            <IfLastModified age="${MAX_HISTORY}"/>
+                        </IfAny>
+                    </IfFilename>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="INFO_FILE" immediateFlush="false" fileName="${LOG_PATH}/info.log"
+                                 filePattern="${LOG_PATH}/info-%d{yyyy-MM-dd}.%i.log.gz">
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${FILE_LOG_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax">
+                <Delete basePath="${LOG_PATH}" maxDepth="1">
+                    <IfFilename glob="*">
+                        <IfAny>
+                            <IfLastModified age="${MAX_HISTORY}"/>
+                        </IfAny>
+                    </IfFilename>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="WARN_FILE" immediateFlush="false" fileName="${LOG_PATH}/warn.log"
+                                 filePattern="${LOG_PATH}/warn-%d{yyyy-MM-dd}.%i.log.gz">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${FILE_LOG_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax">
+                <Delete basePath="${LOG_PATH}" maxDepth="1">
+                    <IfFilename glob="*">
+                        <IfAny>
+                            <IfLastModified age="${MAX_HISTORY}"/>
+                        </IfAny>
+                    </IfFilename>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="ERROR_FILE" immediateFlush="false" fileName="${LOG_PATH}/error.log"
+                                 filePattern="${LOG_PATH}/error-%d{yyyy-MM-dd}.%i.log.gz">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${FILE_LOG_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax">
+                <Delete basePath="${LOG_PATH}" maxDepth="1">
+                    <IfFilename glob="*">
+                        <IfAny>
+                            <IfLastModified age="${MAX_HISTORY}"/>
+                        </IfAny>
+                    </IfFilename>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效-->
+    <loggers>
+        <!--过滤掉spring和hibernate的一些无用的debug信息-->
+        <logger name="org.springframework" level="INFO" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+        <logger name="org.mybatis" level="INFO" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+        <root level="info" includeLocation="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="DEBUG_FILE"/>
+            <appender-ref ref="INFO_FILE"/>
+            <appender-ref ref="WARN_FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </root>
+    </loggers>
+
+</Configuration>
